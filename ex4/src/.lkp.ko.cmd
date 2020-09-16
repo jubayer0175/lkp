@@ -1,0 +1,1 @@
+cmd_/home/jubayer/ex2/src/lkp.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id  -T ./scripts/module-common.lds -o /home/jubayer/ex2/src/lkp.ko /home/jubayer/ex2/src/lkp.o /home/jubayer/ex2/src/lkp.mod.o;  true
