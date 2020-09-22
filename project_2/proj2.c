@@ -5,40 +5,43 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 
+#include <linux/hashtable.h>
 
 
 static char *int_str;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("[MD JUBAYER AL MAHMOD]");
-MODULE_DESCRIPTION("LKP Exercise 4");
-
+MODULE_DESCRIPTION("Project 2");
 module_param(int_str, charp, S_IRUSR | S_IRGRP | S_IROTH);
 MODULE_PARM_DESC(int_str, "A comma-separated list of integers");
 
+/*---------Linked list init----------*/
 static LIST_HEAD(mylist);
 struct entry {
 	int val;
 	struct list_head list;
 };
 
+/*----------Hash table--------------*/
+struct hash_entry {
+    int hash_data;
+    struct hlist_node hashlist;
+
+};
+
+DEFINE_HASHTABLE(mytable,3);
+
+/*--------------------*/
+
+
 static int store_value(int val)
 {
 
     struct entry *value;
+    struct hash_entry *hentry;
+
     value=(struct entry*)kmalloc(sizeof(*value), GFP_KERNEL);
     if (!value)
         return -ENOMEM; /*Failed to allocate memory*/
@@ -46,7 +49,22 @@ static int store_value(int val)
     value->val=val; /* assign the int to the node */
     list_add_tail(&value->list, &mylist); /* add the link at the end of the list*/
     }
+
+    /*hash store*/
+    hentry= (struct hash_entry*)kmalloc(sizeof(*hentry),GFP_KERNEL);
+    if (!hentry)
+             return -ENOMEM; /*Failed to allocate memory*/
+
+    hentry->hash_data = val;
+    hash_add(mytable, &(hentry->hashlist), hentry->hash_data);
+
+ // Storre more DS
+
  return 0;
+
+
+
+
 
 }
 static void test_linked_list(struct seq_file *m)
@@ -65,6 +83,12 @@ static void test_linked_list(struct seq_file *m)
     printk("\n");
     seq_printf(m,"\n");
 }
+
+
+
+
+
+
 static void destroy_linked_list_and_free(void)
 {
     struct list_head *head, *temp;
@@ -76,8 +100,9 @@ static void destroy_linked_list_and_free(void)
         kfree(ptr); 
 
     }
-    printk(KERN_CONT "All entries deleted");
+    printk(KERN_CONT "\n linked list emptied\n ");
 }
+
 static int parse_params(void)
 {
 	int val, err = 0;
@@ -100,17 +125,55 @@ static int parse_params(void)
 	kfree(orig);
 	return err;
 }
+
+
+/*test hash table*/
+static void test_hash(struct seq_file *m) {
+
+struct hash_entry *ptr;
+int grp;
+printk(KERN_CONT "Hash table: ");
+seq_printf(m, "Hash table: ");
+
+    hash_for_each(mytable, grp, ptr, hashlist){
+        printk(KERN_CONT "%d, ",ptr->hash_data);
+        seq_printf(m,"%d, ", ptr->hash_data);
+    }
+ printk(KERN_CONT "\n");
+ seq_printf(m, "\n");
+}
+
+/* Destroy hash*/
+static void destroy_hash_and_free(void) {
+    int grp;
+    struct hash_entry *ptr;
+    struct hlist_node *temp;
+    hash_for_each_safe(mytable,grp, temp, ptr, hashlist) {
+        hash_del(&ptr->hashlist);
+        kfree(ptr);
+    }
+    
+    if(hash_empty(mytable) == 1) 
+        printk(KERN_CONT "\n Hash emptied\n");
+}
+
 static void run_tests(struct seq_file *m)
 {
 test_linked_list(m);
+test_hash(m);
 // More tests
 
 }
+
+
+
+
 
 static void cleanup(void) {
 	printk(KERN_CONT "\nCleaning up...\n");
 
 	destroy_linked_list_and_free();
+    destroy_hash_and_free();
 }
 
 
