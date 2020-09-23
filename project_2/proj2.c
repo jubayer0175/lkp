@@ -33,40 +33,14 @@ struct hash_entry {
 
 DEFINE_HASHTABLE(mytable,3);
 
-/*--------------------*/
-
-
-static int store_value(int val)
-{
-
-    struct entry *value;
-    struct hash_entry *hentry;
-
-    value=(struct entry*)kmalloc(sizeof(*value), GFP_KERNEL);
-    if (!value)
-        return -ENOMEM; /*Failed to allocate memory*/
-    else {
-    value->val=val; /* assign the int to the node */
-    list_add_tail(&value->list, &mylist); /* add the link at the end of the list*/
-    }
-
-    /*hash store*/
-    hentry= (struct hash_entry*)kmalloc(sizeof(*hentry),GFP_KERNEL);
-    if (!hentry)
-             return -ENOMEM; /*Failed to allocate memory*/
-
-    hentry->hash_data = val;
-    hash_add(mytable, &(hentry->hashlist), hentry->hash_data);
-
- // Storre more DS
-
- return 0;
 
 
 
 
 
-}
+
+/* Methods for linked list*/
+
 static void test_linked_list(struct seq_file *m)
 { 
 	struct entry *ptr;
@@ -85,10 +59,6 @@ static void test_linked_list(struct seq_file *m)
 }
 
 
-
-
-
-
 static void destroy_linked_list_and_free(void)
 {
     struct list_head *head, *temp;
@@ -103,31 +73,9 @@ static void destroy_linked_list_and_free(void)
     printk(KERN_CONT "\n linked list emptied\n ");
 }
 
-static int parse_params(void)
-{
-	int val, err = 0;
-	char *p, *orig, *params;
-
-	params = kstrdup(int_str, GFP_KERNEL);
-	if (!params)
-		return -ENOMEM;
-	orig = params;
-	while ((p = strsep(&params, ",")) != NULL) {
-		if (!*p)
-			continue;
-		err = kstrtoint(p, 0, &val);
-		if (err)
-			break;
-		err = store_value(val);
-		if (err)
-			break;
-	}
-	kfree(orig);
-	return err;
-}
 
 
-/*test hash table*/
+/**********HASH*****************************/
 static void test_hash(struct seq_file *m) {
 
 struct hash_entry *ptr;
@@ -156,17 +104,156 @@ static void destroy_hash_and_free(void) {
     if(hash_empty(mytable) == 1) 
         printk(KERN_CONT "\n Hash emptied\n");
 }
+/****************RED BLACK TREE**********************/
+
+static struct rb_root rbtree = RB_ROOT;
+struct my_rb_entry {
+    int data; 
+    struct rb_node mynode;
+};
+
+/*rb tree store function*/
+
+static int store_rbTree(int val)
+{
+     struct my_rb_entry *ptr;
+     struct my_rb_entry *temp;
+     struct rb_node *root = NULL; 
+     struct rb_node **link = &rbtree.rb_node; 
+
+    ptr = kmalloc(sizeof(*ptr), GFP_KERNEL); 
+     if(!ptr)
+         return -ENOMEM;
+    else 
+         ptr->data=val;
+    while (*link) {
+        root = *link;
+        temp = rb_entry(root, struct my_rb_entry, mynode); /*root node*/
+/*find location*/
+
+        if(ptr->data < temp->data) { 
+             link = &root->rb_left;
+         } else{
+             link = &root->rb_right;
+         }
+    }
+/*insert and balance*/
+    rb_link_node(&ptr->mynode, root, link);
+    rb_insert_color(&ptr->mynode, &rbtree);
+ return 0;  
+}
+
+
+/*Test Red b;ack tree*/
+
+static void test_rbtree(struct seq_file *m){
+    struct my_rb_entry *ptr;
+    struct rb_node *node;
+
+    seq_printf(m,"Rb tree: ");
+    printk(KERN_CONT "Rb tree: ");
+
+    for(node = rb_first(&rbtree); node; node= rb_next(node)) {
+        ptr = rb_entry(node, struct my_rb_entry, mynode);
+        seq_printf(m, "%d, ", ptr->data);
+        printk(KERN_CONT "%d, ", ptr->data);
+    }
+seq_printf(m,"\n");
+printk("\n");
+
+}
+
+/* free rb */
+
+static void destroy_rbtree(void){
+    struct my_rb_entry *ptr;
+    struct rb_node *node;
+   // for(node = rb_first(&rbtree); node; node= rb_next(node)) { /*potential seg fault*/
+        node = rb_first(&rbtree);
+        while (node) {
+        ptr = rb_entry(node, struct my_rb_entry, mynode);
+        rb_erase(&ptr->mynode, &rbtree);
+        kfree(ptr);
+        node = rb_first(&rbtree);
+        if (!node)
+            break;
+    }
+}
+
+    /*later to check the empty root*/
+
+
+
+
+
+static int store_value(int val)
+{   int rb = 0;
+    struct entry *value;
+    struct hash_entry *hentry;
+    value=(struct entry*)kmalloc(sizeof(*value), GFP_KERNEL);
+    if (!value)
+        return -ENOMEM; /*Failed to allocate memory*/
+    else {
+    value->val=val; /* assign the int to the node */
+    list_add_tail(&value->list, &mylist); /* add the link at the end of the list*/
+    }
+
+    /*hash store*/
+    hentry= (struct hash_entry*)kmalloc(sizeof(*hentry),GFP_KERNEL);
+    if (!hentry)
+             return -ENOMEM; /*Failed to allocate memory*/
+
+    hentry->hash_data = val;
+    hash_add(mytable, &(hentry->hashlist), hentry->hash_data);
+
+    rb = store_rbTree(val);
+
+    /* red black tree */
+    if (rb != 0)  /*TODO: shorter statement maybe */
+        return -ENOMEM;
+    
+
+ return 0;
+}
+
+
+
+
+
+static int parse_params(void)
+{
+	int val, err = 0;
+	char *p, *orig, *params;
+
+	params = kstrdup(int_str, GFP_KERNEL);
+	if (!params)
+		return -ENOMEM;
+	orig = params;
+	while ((p = strsep(&params, ",")) != NULL) {
+		if (!*p)
+			continue;
+		err = kstrtoint(p, 0, &val);
+		if (err)
+			break;
+		err = store_value(val);
+		if (err)
+			break;
+	}
+	kfree(orig);
+	return err;
+}
+
+
+/********************test and prc functions*******************/
 
 static void run_tests(struct seq_file *m)
 {
 test_linked_list(m);
 test_hash(m);
+test_rbtree(m);
 // More tests
 
 }
-
-
-
 
 
 static void cleanup(void) {
@@ -174,6 +261,7 @@ static void cleanup(void) {
 
 	destroy_linked_list_and_free();
     destroy_hash_and_free();
+    destroy_rbtree();
 }
 
 
@@ -189,16 +277,8 @@ static struct proc_ops proj2_fops={
         .proc_open = proj2_open,
         .proc_release = single_release,
         .proc_read = seq_read,
-        .proc_lseek = seq_lseek,
-    
-                            
+        .proc_lseek = seq_lseek,                            
 };
-
-
-
-
-
-
 
 static int __init proj2_init(void)
 {

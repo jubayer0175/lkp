@@ -1,0 +1,1 @@
+cmd_/home/jubayer/lkp/project_2/proj2.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id  -T ./scripts/module-common.lds -o /home/jubayer/lkp/project_2/proj2.ko /home/jubayer/lkp/project_2/proj2.o /home/jubayer/lkp/project_2/proj2.mod.o;  true
