@@ -183,6 +183,62 @@ static void destroy_rbtree(void){
     /*later to check the empty root*/
 
 
+/****************************************Radix tree**********************/
+static RADIX_TREE(myRDtree, GFP_KERNEL);
+static unsigned long  ind = 0;
+
+
+static int radix_tree_add_(int data){
+    int *ptr;
+    int err;
+    ptr = kmalloc(sizeof(*ptr), GFP_KERNEL);
+    if(!ptr){
+        return -ENOMEM;
+    }else {
+        *ptr = data;
+    } 
+ 
+    err = radix_tree_insert(&myRDtree, ind, (void* )ptr);
+    if (err !=0) 
+        return err;
+    else
+        ind++; /*insertion success*/
+
+return 0;
+
+}
+
+/*test radix tree*/
+static void test_radix_tree(struct seq_file *m){
+    int *ptr;
+    unsigned long i;
+    seq_printf(m,"Radix Tree: ");
+    printk(KERN_CONT "Radix Tree: ");
+  
+    for(i=0; i< ind; i++) {
+        ptr= (int*) radix_tree_lookup(&myRDtree, i);
+        seq_printf(m,"%d, ", *ptr);
+        printk(KERN_CONT "%d,  ", *ptr );
+    }
+
+    seq_printf(m, "\n");
+    printk(KERN_CONT "\n");
+}
+
+/*RD destroy*/
+
+static void destroy_radix_tree_and_free(void){
+
+
+
+    int *ptr;
+    unsigned long i;
+    for(i=0; i< ind; i++) {
+        ptr= (int*) radix_tree_delete(&myRDtree, i);
+        kfree(ptr);
+    }
+ /*TODO: check for emptiness*/
+}
 
 
 
@@ -212,6 +268,11 @@ static int store_value(int val)
     if (rb != 0)  /*TODO: shorter statement maybe */
         return -ENOMEM;
     
+    /*RD tree*/
+    rb = radix_tree_add_(val);
+   if(rb != 0 )
+        return rb;
+
 
  return 0;
 }
@@ -251,6 +312,8 @@ static void run_tests(struct seq_file *m)
 test_linked_list(m);
 test_hash(m);
 test_rbtree(m);
+test_radix_tree(m);
+
 // More tests
 
 }
@@ -262,6 +325,7 @@ static void cleanup(void) {
 	destroy_linked_list_and_free();
     destroy_hash_and_free();
     destroy_rbtree();
+    destroy_radix_tree_and_free();
 }
 
 
