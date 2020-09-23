@@ -33,12 +33,6 @@ struct hash_entry {
 
 DEFINE_HASHTABLE(mytable,3);
 
-
-
-
-
-
-
 /* Methods for linked list*/
 
 static void test_linked_list(struct seq_file *m)
@@ -275,6 +269,17 @@ static void test_xarray(struct seq_file *m){
     seq_printf(m,"\n");
 
 }
+/*Destroy the Xarray*/
+
+static void destroy_xarray_and_free(void)
+{
+    unsigned long i;
+    int *ptr;
+    for(i=0; i<xarray_ind; i++){
+        ptr = (int*) xa_erase(&array, i);
+        kfree(ptr);
+    }
+}
 
 
 
@@ -362,6 +367,7 @@ static void cleanup(void) {
     destroy_hash_and_free();
     destroy_rbtree();
     destroy_radix_tree_and_free();
+    destroy_xarray_and_free();
 }
 
 
