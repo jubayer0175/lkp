@@ -4,7 +4,7 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
-
+#include <linux/xarray.h> 
 #include <linux/hashtable.h>
 
 
@@ -240,6 +240,42 @@ static void destroy_radix_tree_and_free(void){
  /*TODO: check for emptiness*/
 }
 
+/*Xarray*/
+
+DEFINE_XARRAY(array);
+
+// struct xarray array;
+// xa_init(&array);
+ unsigned long xarray_ind = 0;
+
+static void store_xarray(int val)
+{ 
+int *ptr;
+ptr  = kmalloc(sizeof(*ptr), GFP_KERNEL);
+*ptr = val;
+
+ xa_store(&array, xarray_ind, (void*) ptr, GFP_KERNEL);
+
+ xarray_ind++;
+}
+
+/* Test xarray*/
+
+static void test_xarray(struct seq_file *m){
+    unsigned long i;
+    int *ptr;
+    printk(KERN_CONT "Xarray: ");
+    seq_printf(m, "Xarray: ");
+    for(i=0; i < xarray_ind; i++ ){
+        ptr = (int*)xa_load(&array, i);
+        printk(KERN_CONT "%d, ", *ptr);
+        seq_printf(m, "%d, ", *ptr);
+    }
+    printk(KERN_CONT "\n");
+    seq_printf(m,"\n");
+
+}
+
 
 
 static int store_value(int val)
@@ -272,8 +308,7 @@ static int store_value(int val)
     rb = radix_tree_add_(val);
    if(rb != 0 )
         return rb;
-
-
+    store_xarray(val);
  return 0;
 }
 
@@ -313,6 +348,7 @@ test_linked_list(m);
 test_hash(m);
 test_rbtree(m);
 test_radix_tree(m);
+test_xarray(m);
 
 // More tests
 
