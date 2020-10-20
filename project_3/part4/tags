@@ -1,0 +1,33 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BUFF_SIZE	s2dsm_2.c	27;"	d	file:
+I	s2dsm_2.c	/^enum MSI {M,S,I};$/;"	e	enum:MSI	file:
+M	s2dsm_2.c	/^enum MSI {M,S,I};$/;"	e	enum:MSI	file:
+MSI	s2dsm_2.c	/^enum MSI {M,S,I};$/;"	g	file:
+S	s2dsm_2.c	/^enum MSI {M,S,I};$/;"	e	enum:MSI	file:
+addr	s2dsm_2.c	/^static char *addr = NULL;$/;"	v	file:
+c_connect	s2dsm_2.c	/^static volatile int c_connect = 0; \/*connection tracking flags*\/$/;"	v	file:
+cl	s2dsm_2.c	/^static volatile int cl=0;$/;"	v	file:
+client	s2dsm_2.c	/^client(void *argv)$/;"	f	file:
+done_mapping	s2dsm_2.c	/^static volatile int done_mapping = 0; \/*Map control flag*\/$/;"	v	file:
+errExit	s2dsm_2.c	28;"	d	file:
+fault_handler_thread	s2dsm_2.c	/^fault_handler_thread(void *arg)$/;"	f	file:
+hello	s2dsm_2.c	/^static char hello[6] = "12345"; \/*Say this is my memroy request code*\/$/;"	v	file:
+int1	s2dsm_2.c	/^static volatile int int1 = 0;$/;"	v	file:
+invalid	s2dsm_2.c	/^static char invalid[2]="2";$/;"	v	file:
+len	s2dsm_2.c	/^static long len;$/;"	v	file:
+main	s2dsm_2.c	/^int main(int argc, char *argv[])$/;"	f
+page	s2dsm_2.c	/^static char *page = NULL;$/;"	v	file:
+page_size	s2dsm_2.c	/^static long page_size;$/;"	v	file:
+page_track	s2dsm_2.c	/^static volatile int page_track;$/;"	v	file:
+read_for_app_2	s2dsm_2.c	/^static volatile int read_for_app_2; $/;"	v	file:
+read_req	s2dsm_2.c	/^static char read_req[2]="1";$/;"	v	file:
+s_connect	s2dsm_2.c	/^static volatile int s_connect = 0; \/*connection tracking flags*\/$/;"	v	file:
+server	s2dsm_2.c	/^server(void *argv){$/;"	f	file:
+sock	s2dsm_2.c	/^static volatile int sock =0;$/;"	v	file:
+state	s2dsm_2.c	/^static volatile enum MSI *state ; \/*This willl conatain number of MSI states for each$/;"	v	typeref:enum:MSI	file:
+tok	s2dsm_2.c	/^char *tok;$/;"	v
